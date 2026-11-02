@@ -167,8 +167,13 @@ const dir = d => d==='long' ? '<span class="tag long">Achat</span>' : '<span cla
 const STATUS = {attente:'Entrée à la prochaine bougie', ouvert:'En cours'};
 let D, per='test en direct', pf='filtre', jf='all', cur=null, chart, cs, vw, em, vol, eq, priceLines=[];
 
+let first = true;
 async function load(){
-  const r = await fetch('data.json?'+Date.now()); D = await r.json(); render();
+  const r = await fetch('data.json?'+Date.now()); D = await r.json();
+  if(first && !(D.summary['test en direct'].tous||{}).n){  // avant le début du test : montrer le backtest
+    per='backtest'; document.querySelectorAll('#segPer button').forEach(b=>b.classList.toggle('on', b.dataset.v==='backtest'));
+  }
+  first = false; render();
 }
 function seg(id, cb){ document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cb(b.dataset.v);}); }
 seg('segPer', v=>{per=v; renderTop(); renderEquity(); renderTables();});
