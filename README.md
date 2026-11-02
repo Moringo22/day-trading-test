@@ -22,7 +22,7 @@ Lancer à la main : onglet **Actions** → **Test day trading** → **Run workfl
 | VWAP | Repli sur le VWAP / EMA 21 dans une tendance (EMA 9 > 21, ADX ≥ 20) | 2 R |
 | REVERS | Chandelle de retournement (marteau, avalement, étoile du matin/soir) + RSI extrême + Bollinger | 1,5 R |
 
-Stop selon la structure, borné entre 0,5 et 2 ATR. Entrée à l'ouverture de la bougie suivante, stop compté en premier si les deux sont touchés dans la même bougie, sortie à 15 h 55. Frais IBKR et glissement de 0,02 % inclus.
+Stop selon la structure, borné entre 0,5 et 2 ATR. Entrée à l'ouverture de la bougie suivante, stop compté en premier si les deux sont touchés dans la même bougie, sortie à 15 h 55. Frais IBKR et glissement de 0,005 % par côté inclus (≈ 1 à 3 cents sur ces titres).
 
 ## Le modèle
 

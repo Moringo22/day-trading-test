@@ -20,7 +20,7 @@
   "forward_start": "2026-11-03",
   "account_usd": 10000,
   "risk_per_trade_usd": 100,
-  "slippage_pct": 0.02,
+  "slippage_pct": 0.005,
   "commission_per_share": 0.005,
   "commission_min": 1.0,
   "daily_loss_limit_R": 3,
