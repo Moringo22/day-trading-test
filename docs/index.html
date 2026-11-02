@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test de day trading — papier</title>
+<script src="lwc.js"></script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#121211; --surface-1:#1a1a19; --surface-2:#222220; --line:#2e2e2b;
+  --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8d8c84;
+  --series-1:#3987e5; --series-2:#d95926;
+  --good:#0ca30c; --good-text:#3fcf3f; --critical:#d03b3b; --critical-text:#ff7a7a; --warning:#fab219;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text-primary);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 18px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:6px}
+h1{font-size:22px;margin:0;font-weight:650;letter-spacing:-.01em}
+h2{font-size:16px;margin:0 0 12px;font-weight:620}
+.sub{color:var(--text-secondary);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface-2);font-size:12.5px;color:var(--text-secondary);border:1px solid var(--line)}
+.dot{width:8px;height:8px;border-radius:50%}
+.warn{background:#2a2414;border:1px solid #4a3d16;color:#f2dfae;padding:10px 14px;border-radius:10px;font-size:13px;margin:14px 0 18px}
+.card{background:var(--surface-1);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+@media(max-width:900px){.g2{grid-template-columns:1fr}}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface-2);border-radius:10px;padding:12px 14px}
+.tile .k{font-size:12px;color:var(--text-secondary)}
+.tile .v{font-size:24px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--text-muted);margin-top:2px}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px;border:1px solid var(--line)}
+.seg button{background:none;border:0;color:var(--text-secondary);padding:6px 11px;border-radius:6px;cursor:pointer;font:inherit;font-size:13px}
+.seg button.on{background:#34342f;color:var(--text-primary)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.verdict{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--surface-2);margin-bottom:14px;font-size:13.5px}
+.verdict b{white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{text-align:left;color:var(--text-secondary);font-weight:550;font-size:12px;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid #262624;vertical-align:top}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.click{cursor:pointer} tr.click:hover td{background:#22221f}
+.scroll{overflow:auto;max-height:520px}
+.pos{color:var(--good-text)} .neg{color:var(--critical-text)} .mut{color:var(--text-muted)}
+.tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;background:#2c2c28;color:var(--text-secondary);white-space:nowrap}
+.tag.long{background:#15301a;color:#8fe28f} .tag.short{background:#3a1717;color:#ffb0b0}
+.tag.ok{background:#173025;color:#9fe3bf}
+.tickers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tickers button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-secondary);border-radius:7px;padding:5px 9px;cursor:pointer;font:inherit;font-size:12.5px}
+.tickers button.on{border-color:var(--series-1);color:var(--text-primary)}
+.tickers sup{color:var(--warning);margin-left:3px}
+#chart{height:430px} #equity{height:300px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text-secondary);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+details summary{cursor:pointer;color:var(--text-secondary)}
+.small{font-size:12.5px;color:var(--text-secondary)}
+.reasons{font-size:12px;color:var(--text-muted)}
+ul.clean{margin:6px 0 0;padding-left:18px} ul.clean li{margin:3px 0}
+code{background:#2a2a26;padding:1px 5px;border-radius:4px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Test de day trading <span class="mut" style="font-weight:400">· argent fictif</span></h1>
+      <div class="sub" id="meta">Chargement…</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill" id="mkt"><span class="dot"></span>…</span>
+      <span class="pill" id="refresh">Mise à jour auto</span>
+    </div>
+  </header>
+
+  <div class="warn">⚠️ Simulation seulement : aucun ordre réel n'est passé. Les pistes arrivent avec 5 à 20 min de retard (GitHub Actions + Yahoo). Ce n'est pas un conseil financier.</div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="seg" id="segPer">
+        <button data-v="test en direct" class="on">Test en direct</button>
+        <button data-v="backtest">Backtest (60 jours)</button>
+      </div>
+      <div class="seg" id="segPf">
+        <button data-v="filtre" class="on">Trades choisis par le modèle (+EV)</button>
+        <button data-v="tous">Tous les signaux</button>
+      </div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card">
+    <h2>Pistes du jour <span class="small" id="pistesDay"></span></h2>
+    <div class="scroll" style="max-height:420px"><table id="pistes"></table></div>
+    <div class="small" style="margin-top:8px">Clique une ligne pour voir le graphique. <b>Prob.</b> = chance estimée que le trade finisse gagnant. <b>EV</b> = gain moyen attendu en R (1 R = le montant risqué jusqu'au stop). Le modèle prend seulement les signaux à EV ≥ <span id="minev"></span> R.</div>
+  </div>
+
+  <div class="card">
+    <h2>Graphique 5 minutes</h2>
+    <div class="tickers" id="tickers"></div>
+    <div id="chart"></div>
+    <div class="legend">
+      <span><i style="background:var(--series-1)"></i>VWAP</span>
+      <span><i style="background:var(--series-2)"></i>EMA 21</span>
+      <span>▲▼ entrées (plein = pris par le modèle, contour = ignoré)</span>
+      <span>Lignes pointillées : stop / cible du trade choisi</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Capital simulé (départ <span id="acct"></span>)</h2>
+    <div id="equity"></div>
+    <div class="legend" id="eqLegend"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Par stratégie</h2><div class="scroll"><table id="tStrat"></table></div></div>
+    <div class="card"><h2>Calibration du modèle</h2><div class="small" style="margin-bottom:8px">Si le modèle est bien calibré, « réel » ≈ « prévu ».</div><table id="tCal"></table></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>Par force du signal (confluence)</h2><table id="tTier"></table></div>
+    <div class="card"><h2>Chandelles de retournement</h2><div class="scroll"><table id="tPat"></table></div></div>
+  </div>
+  <div class="card"><h2>Par titre (toute la période)</h2><div class="scroll"><table id="tTick"></table></div></div>
+
+  <div class="card">
+    <h2>Journal des trades</h2>
+    <div class="controls">
+      <div class="seg" id="segJ">
+        <button data-v="all" class="on">Tous</button>
+        <button data-v="pris">Choisis par le modèle</button>
+      </div>
+    </div>
+    <div class="scroll"><table id="journal"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Comment ça marche</h2>
+    <div class="small" style="font-size:13.5px;line-height:1.6">
+      <p style="margin-top:0">Toutes les 15 minutes pendant la séance, un robot GitHub télécharge les bougies de 5 minutes de <span id="nTick"></span> titres très liquides, calcule les indicateurs et cherche 3 configurations avec des règles fixes (rien n'est optimisé sur les données) :</p>
+      <ul class="clean">
+        <li><b>ORB</b> : cassure du range de 9 h 30 à 9 h 45 avec volume ≥ 1,5× la normale, du bon côté du VWAP. Cible 2 R.</li>
+        <li><b>VWAP</b> : en tendance (EMA 9 &gt; EMA 21, ADX ≥ 20), repli sur le VWAP ou l'EMA 21 puis bougie de reprise. Cible 2 R.</li>
+        <li><b>REVERS</b> : chandelle de retournement (marteau, avalement, étoile du matin/du soir) avec RSI extrême et touche de la bande de Bollinger, sans tendance forte (ADX &lt; 30). Cible 1,5 R.</li>
+      </ul>
+      <p><b>Stop</b> selon la structure (milieu du range, creux de la bougie), borné entre 0,5 et 2 ATR. Entrée à l'ouverture de la bougie suivante. Si le stop et la cible sont touchés dans la même bougie, on compte le stop. Sortie forcée à 15 h 55. Frais IBKR (0,005 $/action, min. 1 $) et glissement de <span id="slip"></span> % inclus. Pas de position la nuit.</p>
+      <p><b>Le modèle</b> donne un score de confluence (0 à 5 : marché SPY dans le même sens, volume, régime ADX, bougie de confirmation, côté de la clôture d'hier), puis estime la probabilité de gain et l'EV à partir des trades déjà fermés de la même stratégie et du même score (statistique bayésienne, sceptique au départ). Il ne prend que les trades +EV, avec au plus <span id="maxo"></span> positions en même temps et un arrêt après −<span id="dll"></span> R dans la journée.</p>
+      <p><b>Verdict après un mois</b> : avantage probable seulement si le R moyen des trades choisis dépasse +0,10 R et que l'intervalle de confiance à 95 % reste au-dessus de 0, sur 100 trades ou plus.</p>
+      <p><b>Règles inspirées des skills Claude de la communauté</b> : <a style="color:#86b6ef" href="https://github.com/tradermonty/claude-trading-skills">tradermonty/claude-trading-skills</a> (backtest-expert : frictions, remplissages pessimistes, 100+ trades, hors échantillon ; technical-analyst : chandelles, scénarios en probabilités) et <a style="color:#86b6ef" href="https://github.com/agiprolabs/claude-trading-skills">agiprolabs/claude-trading-skills</a> (exit-strategies et position-sizing : stops ATR, risque fixe ; regime-detection : ADX ; risk-management : limite de perte quotidienne ; walk-forward-validation : aucune donnée du futur).</p>
+    </div>
+    <p class="small">Graphiques : <a style="color:#86b6ef" href="https://www.tradingview.com/">TradingView Lightweight Charts™</a> (Apache 2.0). Données : Yahoo Finance via yfinance.</p>
+    <details><summary>Journal des exécutions</summary><pre id="log" class="small" style="white-space:pre-wrap"></pre></details>
+  </div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x==null||isNaN(x) ? '—' : Number(x).toLocaleString('fr-CA',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct = (x, d=0) => x==null ? '—' : fmt(x*100, d)+' %';
+const money = x => x==null ? '—' : (x<0?'−':'')+Math.abs(x).toLocaleString('fr-CA',{maximumFractionDigits:0})+' $';
+const sR = x => x==null ? '—' : (x>0?'+':x<0?'−':'')+fmt(Math.abs(x),2)+' R';
+const cls = x => x>0 ? 'pos' : x<0 ? 'neg' : '';
+const hhmm = s => s ? s.slice(11,16).replace(':',' h ') : '—';
+const dir = d => d==='long' ? '<span class="tag long">Achat</span>' : '<span class="tag short">Vente à découvert</span>';
+const STATUS = {attente:'Entrée à la prochaine bougie', ouvert:'En cours'};
+let D, per='test en direct', pf='filtre', jf='all', cur=null, chart, cs, vw, em, vol, eq, priceLines=[];
+
+async function load(){
+  const r = await fetch('data.json?'+Date.now()); D = await r.json(); render();
+}
+function seg(id, cb){ document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cb(b.dataset.v);}); }
+seg('segPer', v=>{per=v; renderTop(); renderEquity(); renderTables();});
+seg('segPf', v=>{pf=v; renderTop();});
+seg('segJ', v=>{jf=v; renderJournal();});
+
+function render(){
+  const g = new Date(D.generated_at);
+  document.getElementById('meta').textContent = `Dernière mise à jour : ${g.toLocaleString('fr-CA',{dateStyle:'medium',timeStyle:'short'})} · test en direct depuis le ${D.config.forward_start}`;
+  const m = document.getElementById('mkt');
+  m.innerHTML = `<span class="dot" style="background:${D.market_open?'var(--good)':'var(--text-muted)'}"></span>${D.market_open?'Marché ouvert':'Marché fermé'}`;
+  ['minev','slip','maxo','dll'].forEach((id,i)=>document.getElementById(id).textContent=fmt([D.config.min_ev_R,D.config.slippage_pct,D.config.max_open_filtered,D.config.daily_loss_limit_R][i], i===2||i===3?0:2));
+  document.getElementById('acct').textContent = money(D.config.account_usd)+' US, levier max '+D.config.max_leverage+'×';
+  document.getElementById('nTick').textContent = D.config.tickers.length;
+  document.getElementById('log').textContent = D.log.join('\n');
+  renderTop(); renderPistes(); renderTickers(); renderEquity(); renderTables(); renderJournal();
+  if(!cur){ const p = D.pistes[0]; showTicker(p ? p.ticker : D.config.tickers[0], p); } else showTicker(cur.t, cur.p);
+}
+
+function renderTop(){
+  const s = D.summary[per][pf];
+  const v = per==='test en direct' && pf==='filtre' ? D.verdict : null;
+  const vd = document.getElementById('verdict');
+  if(v){ const ic = {ok:'✅',non:'❌',incertain:'🟡',tot:'⏳'}[v.code]; vd.style.display='flex'; vd.innerHTML=`<span>${ic}</span><div><b>Verdict provisoire :</b> ${v.texte}</div>`; }
+  else { vd.style.display='flex'; vd.innerHTML = `<span>ℹ️</span><div>${per==='backtest'?'Backtest sur les 60 derniers jours de bougies 5 min : sert de point de départ au modèle, mais seul le test en direct compte pour le verdict.':'Tous les signaux, même ceux que le modèle ignore : sert à mesurer chaque stratégie.'}</div>`; }
+  const T = document.getElementById('tiles');
+  if(!s || !s.n){ T.innerHTML = '<div class="small">Aucun trade fermé pour l\'instant.</div>'; return; }
+  const tiles = [
+    ['Trades fermés', fmt(s.n,0), `${s.days} jours de bourse`],
+    ['% gagnants', pct(s.win_rate), `cible ${pct(s.pct_cible)} · stop ${pct(s.pct_stop)}`],
+    ['R moyen par trade', `<span class="${cls(s.avg_R)}">${sR(s.avg_R)}</span>`, s.ci_low!=null ? `IC 95 % : ${sR(s.ci_low)} à ${sR(s.ci_high)}`:''],
+    ['Total', `<span class="${cls(s.sum_R)}">${sR(s.sum_R)}</span>`, `<span class="${cls(s.pnl_usd)}">${money(s.pnl_usd)} US</span>`],
+    ['Profit factor', s.profit_factor==null?'∞':fmt(s.profit_factor,2), 'gains ÷ pertes (> 1 = profitable)'],
+    ['Pire baisse', `<span class="neg">${sR(s.max_dd_R)}</span>`, 'du sommet au creux'],
+  ];
+  T.innerHTML = tiles.map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v">${t[1]}</div><div class="s">${t[2]}</div></div>`).join('');
+}
+
+function statusCell(r){
+  if(r.status==='fermé') return `<span class="${cls(r.R)}">${sR(r.R)}</span> <span class="mut">${r.exit_reason}</span>`;
+  if(r.status==='ouvert') return `En cours <span class="${cls(r.R)}">${sR(r.R)}</span>`;
+  return STATUS[r.status]||r.status;
+}
+function renderPistes(){
+  document.getElementById('pistesDay').textContent = '· '+D.last_bar_day+' · '+D.pistes.length+' signaux';
+  const t = document.getElementById('pistes');
+  if(!D.pistes.length){ t.innerHTML='<tr><td class="mut">Aucun signal pour cette séance.</td></tr>'; return; }
+  t.innerHTML = `<tr><th>Heure</th><th>Titre</th><th>Stratégie</th><th>Sens</th><th class="n">Entrée</th><th class="n">Stop</th><th class="n">Cible</th><th class="n">Prob.</th><th class="n">EV</th><th>Confluence</th><th>Modèle</th><th>Statut</th></tr>` +
+    D.pistes.map((r,i)=>`<tr class="click" data-i="${i}"><td>${hhmm(r.signal_time)}</td><td><b>${r.ticker}</b></td><td>${r.strategy}</td><td>${dir(r.direction)}</td>
+    <td class="n">${fmt(r.entry ?? r.ref_price)}</td><td class="n">${fmt(r.stop)}</td><td class="n">${fmt(r.target)}</td>
+    <td class="n">${pct(r.p_win)}</td><td class="n ${cls(r.ev_R)}">${sR(r.ev_R)}</td>
+    <td>${r.score}/5 <span class="reasons">${(r.reasons||[]).join(' · ')}</span></td>
+    <td>${r.pris_filtre?'<span class="tag ok">✓ Pris</span>':'<span class="mut">'+r.raison_filtre+'</span>'}</td><td>${statusCell(r)}</td></tr>`).join('');
+  t.querySelectorAll('tr.click').forEach(tr=>tr.onclick=()=>{ const p=D.pistes[+tr.dataset.i]; showTicker(p.ticker,p); document.getElementById('chart').scrollIntoView({behavior:'smooth',block:'center'}); });
+}
+
+function renderTickers(){
+  const cnt = {}; D.pistes.forEach(p=>cnt[p.ticker]=(cnt[p.ticker]||0)+1);
+  document.getElementById('tickers').innerHTML = D.config.tickers.map(t=>`<button data-t="${t}">${t}${cnt[t]?'<sup>'+cnt[t]+'</sup>':''}</button>`).join('');
+  document.querySelectorAll('#tickers button').forEach(b=>b.onclick=()=>showTicker(b.dataset.t,null));
+}
+
+function mkChart(el, h){
+  return LightweightCharts.createChart(el, {height:h, layout:{background:{color:'#1a1a19'}, textColor:'#c3c2b7', fontSize:12},
+    grid:{vertLines:{color:'#232321'}, horzLines:{color:'#232321'}}, rightPriceScale:{borderColor:'#2e2e2b'},
+    timeScale:{borderColor:'#2e2e2b', timeVisible:true, secondsVisible:false}, crosshair:{mode:0}, localization:{locale:'fr-CA'}});
+}
+function showTicker(t, p){
+  cur = {t, p};
+  document.querySelectorAll('#tickers button').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  const c = D.charts[t]; if(!c) return;
+  if(!chart){
+    chart = mkChart(document.getElementById('chart'), 430);
+    cs = chart.addCandlestickSeries({upColor:'#0ca30c', downColor:'#d03b3b', borderVisible:false, wickUpColor:'#0ca30c', wickDownColor:'#d03b3b'});
+    vw = chart.addLineSeries({color:'#3987e5', lineWidth:2, priceLineVisible:false, lastValueVisible:false});
+    em = chart.addLineSeries({color:'#d95926', lineWidth:2, priceLineVisible:false, lastValueVisible:false});
+    vol = chart.addHistogramSeries({priceScaleId:'v', priceFormat:{type:'volume'}, color:'#3a3a35'});
+    chart.priceScale('v').applyOptions({scaleMargins:{top:0.82, bottom:0}});
+    new ResizeObserver(()=>chart.applyOptions({width:document.getElementById('chart').clientWidth})).observe(document.getElementById('chart'));
+  }
+  cs.setData(c.bars.map(b=>({time:b[0], open:b[1], high:b[2], low:b[3], close:b[4]})));
+  vol.setData(c.bars.map(b=>({time:b[0], value:b[5], color: b[4]>=b[1] ? 'rgba(12,163,12,.35)' : 'rgba(208,59,59,.35)'})));
+  vw.setData(c.vwap.map(x=>({time:x[0], value:x[1]})));
+  em.setData(c.ema21.map(x=>({time:x[0], value:x[1]})));
+  const mk = c.trades.map(tr=>({time:tr.t, position: tr.dir==='long'?'belowBar':'aboveBar', shape: tr.dir==='long'?'arrowUp':'arrowDown',
+      color: tr.pris ? (tr.dir==='long'?'#3fcf3f':'#ff7a7a') : '#8d8c84', text: tr.strat + (tr.R!=null && tr.status==='fermé' ? ' '+(tr.R>0?'+':'')+fmt(tr.R,1)+'R':'')}))
+    .sort((a,b)=>a.time-b.time);
+  cs.setMarkers(mk);
+  priceLines.forEach(l=>cs.removePriceLine(l)); priceLines=[];
+  const tr = p ? c.trades.find(x=>Math.abs(x.stop-p.stop)<1e-6 && x.strat===p.strategy) : null;
+  if(tr){
+    priceLines.push(cs.createPriceLine({price:tr.stop, color:'#d03b3b', lineWidth:1, lineStyle:2, title:'stop'}));
+    if(tr.target) priceLines.push(cs.createPriceLine({price:tr.target, color:'#0ca30c', lineWidth:1, lineStyle:2, title:'cible'}));
+    if(tr.entry) priceLines.push(cs.createPriceLine({price:tr.entry, color:'#c3c2b7', lineWidth:1, lineStyle:1, title:'entrée'}));
+  }
+  chart.timeScale().fitContent();
+}
+
+function renderEquity(){
+  const el = document.getElementById('equity');
+  if(!eq){ eq = {c: mkChart(el, 300)}; eq.a = eq.c.addLineSeries({color:'#3987e5', lineWidth:2}); eq.b = eq.c.addLineSeries({color:'#d95926', lineWidth:2});
+    eq.c.applyOptions({timeScale:{timeVisible:false}});
+    new ResizeObserver(()=>eq.c.applyOptions({width:el.clientWidth})).observe(el); }
+  const E = D.equity[per];
+  const start = {time: null};
+  const conv = arr => arr.map(x=>({time:x.date, value:x.equity}));
+  eq.a.setData(conv(E.filtre)); eq.b.setData(conv(E.tous));
+  eq.c.timeScale().fitContent();
+  const last = a => a.length ? money(a[a.length-1].equity) : '—';
+  document.getElementById('eqLegend').innerHTML = `<span><i style="background:#3987e5"></i>Modèle (+EV) : ${last(E.filtre)}</span><span><i style="background:#d95926"></i>Tous les signaux : ${last(E.tous)}</span><span class="mut">Montants en $ US si on risque 100 $ (1 %) par trade.</span>`;
+}
+
+function statTable(id, rows, label){
+  const t = document.getElementById(id);
+  if(!rows || !rows.length){ t.innerHTML='<tr><td class="mut">Pas encore de données.</td></tr>'; return; }
+  t.innerHTML = `<tr><th>${label}</th><th class="n">Trades</th><th class="n">% gagnants</th><th class="n">R moyen</th><th class="n">IC 95 %</th><th class="n">Total</th><th class="n">PF</th></tr>` +
+    rows.map(r=>`<tr><td>${r.cle}</td><td class="n">${r.n}</td><td class="n">${pct(r.win_rate)}</td><td class="n ${cls(r.avg_R)}">${sR(r.avg_R)}</td>
+      <td class="n mut">${r.ci_low!=null?sR(r.ci_low)+' à '+sR(r.ci_high):'—'}</td><td class="n ${cls(r.sum_R)}">${sR(r.sum_R)}</td><td class="n">${r.profit_factor==null?'∞':fmt(r.profit_factor,2)}</td></tr>`).join('');
+}
+function renderTables(){
+  statTable('tStrat', D.by_strategy[per], 'Stratégie');
+  statTable('tTier', D.by_tier, 'Force');
+  statTable('tPat', D.by_pattern, 'Chandelle');
+  statTable('tTick', D.by_ticker, 'Titre');
+  const c = D.calibration[per], t = document.getElementById('tCal');
+  t.innerHTML = c.length ? `<tr><th>Prob. prévue</th><th class="n">Trades</th><th class="n">Prévu</th><th class="n">Réel</th></tr>` + c.map(r=>`<tr><td>${r.bin}</td><td class="n">${r.n}</td><td class="n">${pct(r.prevu)}</td><td class="n">${pct(r.reel)}</td></tr>`).join('') : '<tr><td class="mut">Pas encore de données.</td></tr>';
+}
+function renderJournal(){
+  const rows = D.trades.filter(r=> jf==='all' || r.pris_filtre);
+  document.getElementById('journal').innerHTML = `<tr><th>Signal</th><th>Période</th><th>Titre</th><th>Stratégie</th><th>Sens</th><th class="n">Entrée</th><th class="n">Sortie</th><th>Raison</th><th class="n">Prob.</th><th class="n">EV</th><th>Modèle</th><th class="n">Résultat</th><th class="n">$</th></tr>` +
+    rows.map(r=>`<tr><td>${r.signal_time.slice(0,10)} ${hhmm(r.signal_time)}</td><td class="mut">${r.periode==='backtest'?'backtest':'direct'}</td><td><b>${r.ticker}</b></td><td>${r.strategy}</td><td>${dir(r.direction)}</td>
+    <td class="n">${fmt(r.entry)}</td><td class="n">${fmt(r.exit)}</td><td class="mut">${r.exit_reason||STATUS[r.status]||''}</td><td class="n">${pct(r.p_win)}</td><td class="n ${cls(r.ev_R)}">${sR(r.ev_R)}</td>
+    <td>${r.pris_filtre?'<span class="tag ok">✓</span>':''}</td><td class="n ${cls(r.R)}">${sR(r.R)}</td><td class="n ${cls(r.pnl_usd)}">${money(r.pnl_usd)}</td></tr>`).join('');
+}
+
+let left = 300;
+setInterval(()=>{ left--; if(left<=0){ left=300; load(); } document.getElementById('refresh').textContent = 'Actualisation dans '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0'); }, 1000);
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "tickers": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AMD",
+    "AVGO",
+    "JPM",
+    "NFLX",
+    "PLTR"
+  ],
+  "market_ticker": "SPY",
+  "forward_start": "2026-11-03",
+  "account_usd": 10000,
+  "risk_per_trade_usd": 100,
+  "slippage_pct": 0.02,
+  "commission_per_share": 0.005,
+  "commission_min": 1.0,
+  "daily_loss_limit_R": 3,
+  "max_open_filtered": 4,
+  "min_ev_R": 0.05,
+  "min_samples_for_ev": 20,
+  "max_leverage": 2
+}
