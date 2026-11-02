@@ -2,8 +2,8 @@ name: Test day trading
 
 on:
   schedule:
-    # Heures UTC. En hiver (UTC-5) : toutes les 15 min de 9 h à 16 h 45 à Montréal, lundi au vendredi.
-    - cron: "*/15 14-21 * * 1-5"
+    # Heures UTC (minutes décalées : GitHub saute souvent les tâches à :00/:15). En hiver (UTC-5) : toutes les 15 min de 9 h 04 à 16 h 49 à Montréal, lundi au vendredi.
+    - cron: "4,19,34,49 14-21 * * 1-5"
   workflow_dispatch:
 
 permissions:
