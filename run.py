@@ -57,15 +57,17 @@ def _load_all():
 def load_bars(t):
     a = _load_all()
     df = a[a["ticker"] == t].drop(columns="ticker").set_index("ts").sort_index()
+    df = df[["open", "high", "low", "close", "volume"]].apply(pd.to_numeric, errors="coerce")
     return df[~df.index.duplicated(keep="last")]
 
 
 def save_new(frames):
     """frames: {ticker: df} -> réécrit seulement les fichiers des jours touchés."""
     global _ALL
-    new = pd.concat([f.assign(ticker=t) for t, f in frames.items() if len(f)]).reset_index().rename(columns={"index": "ts"})
-    if new.empty:
+    parts = [f.assign(ticker=t) for t, f in frames.items() if len(f)]
+    if not parts:
         return
+    new = pd.concat(parts).reset_index()
     new = new.rename(columns={new.columns[0]: "ts"})
     a = pd.concat([_load_all(), new], ignore_index=True)
     a = a.drop_duplicates(subset=["ts", "ticker"], keep="last").sort_values(["ts", "ticker"])
