@@ -75,7 +75,7 @@ code{background:#2a2a26;padding:1px 5px;border-radius:4px;font-size:12.5px}
     </div>
   </header>
 
-  <div class="warn">⚠️ Simulation seulement : aucun ordre réel n'est passé. Les pistes arrivent avec 5 à 20 min de retard (GitHub Actions + Yahoo). Ce n'est pas un conseil financier.</div>
+  <div class="warn">⚠️ Simulation seulement : aucun ordre réel n'est passé. Les pistes arrivent avec environ 2 à 7 min de retard (GitHub Actions + Yahoo). Ce n'est pas un conseil financier.</div>
 
   <div class="card">
     <div class="controls">
@@ -140,7 +140,7 @@ code{background:#2a2a26;padding:1px 5px;border-radius:4px;font-size:12.5px}
   <div class="card">
     <h2>Comment ça marche</h2>
     <div class="small" style="font-size:13.5px;line-height:1.6">
-      <p style="margin-top:0">Toutes les 15 minutes pendant la séance, un robot GitHub télécharge les bougies de 5 minutes de <span id="nTick"></span> titres très liquides, calcule les indicateurs et cherche 3 configurations avec des règles fixes (rien n'est optimisé sur les données) :</p>
+      <p style="margin-top:0">Toutes les 5 minutes pendant la séance, un robot GitHub télécharge les bougies de 5 minutes de <span id="nTick"></span> titres très liquides, calcule les indicateurs et cherche 3 configurations avec des règles fixes (rien n'est optimisé sur les données) :</p>
       <ul class="clean">
         <li><b>ORB</b> : cassure du range de 9 h 30 à 9 h 45 avec volume ≥ 1,5× la normale, du bon côté du VWAP. Cible 2 R.</li>
         <li><b>VWAP</b> : en tendance (EMA 9 &gt; EMA 21, ADX ≥ 20), repli sur le VWAP ou l'EMA 21 puis bougie de reprise. Cible 2 R.</li>

@@ -1,6 +1,6 @@
 # Test de day trading (papier)
 
-Un robot GitHub Actions teste des stratégies de day trading sur 15 titres américains très liquides, **sans argent réel**. Le site se met à jour tout seul toutes les 15 minutes pendant la séance.
+Un robot GitHub Actions teste des stratégies de day trading sur 15 titres américains très liquides, **sans argent réel**. Le site se met à jour tout seul toutes les 5 minutes pendant la séance.
 
 - **Site** : https://moringo22.github.io/day-trading-test/
 - **Test en direct** : à partir du 3 novembre 2026, bilan après un mois.
@@ -10,7 +10,7 @@ Un robot GitHub Actions teste des stratégies de day trading sur 15 titres amér
 
 | Heure (Montréal, hiver) | Action |
 |---|---|
-| Toutes les 15 min, 9 h à 16 h 45, lundi au vendredi | Télécharge les bougies 5 min (Yahoo Finance), cherche les signaux, simule les trades, met à jour le site |
+| Toutes les 5 min, 9 h 35 à 16 h 10, lundi au vendredi (une boucle par séance) | Télécharge les bougies 5 min (Yahoo Finance), cherche les signaux, simule les trades, met à jour le site |
 
 Lancer à la main : onglet **Actions** → **Test day trading** → **Run workflow**.
 
