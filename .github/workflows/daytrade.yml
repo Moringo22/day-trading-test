@@ -44,11 +44,11 @@ jobs:
         run: |
           git config user.name "daytrade-bot"
           git config user.email "daytrade-bot@users.noreply.github.com"
+          START=$(date +%s)   # compte depuis le début de la tâche (limite GitHub : 6 h)
           # Départ avant l'ouverture : attendre 9 h 35 min 40 s (première bougie complète après l'ouverture)
           if [ "$(date +%u)" -le 5 ] && [ "$(date +%H%M)" -ge 0800 ] && [ "$(date +%H%M)" -lt 0935 ]; then
             W=$(( $(date -d "today 09:35:40" +%s) - $(date +%s) )); echo "Attente de l'ouverture : ${W}s"; sleep $W
           fi
-          START=$(date +%s)
           while true; do
             python run.py || echo "run.py a échoué, on continue"
             git add data trades.csv docs/data.json run_log.txt 2>/dev/null || true
