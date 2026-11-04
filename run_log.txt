@@ -5,3 +5,4 @@
 2026-11-03 15:28 OK : 1065 bougies ajoutées, 1556 trades simulés (25 en direct, 2 pris par le modèle).
 2026-11-03 17:19 OK : 105 bougies ajoutées, 1559 trades simulés (26 en direct, 3 pris par le modèle).
 2026-11-04 11:15 OK : 300 bougies ajoutées, 1572 trades simulés (40 en direct, 7 pris par le modèle).
+2026-11-04 11:21 OK : 30 bougies ajoutées, 1573 trades simulés (41 en direct, 7 pris par le modèle).
